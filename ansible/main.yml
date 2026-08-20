@@ -1,0 +1,7 @@
+- name: Configure servers
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Docker installation
+      import_tasks: docker-install.yml
