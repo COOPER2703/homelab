@@ -1,5 +1,5 @@
 # Ansible vault
-ansible/group_vars/vault.yml
+ansible/group_vars/servers*.yml
 
 # Generated env files
 apps/**/.env
