@@ -1,0 +1,8 @@
+# Ansible vault
+ansible/group_vars/vault.yml
+
+# Generated env files
+apps/**/.env
+
+# Traefik ACME certificates
+acme.json

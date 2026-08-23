@@ -1,0 +1,56 @@
+- name: Deploy Docker apps
+  hosts: servers
+  become: true
+
+  vars:
+    apps_path: /opt/apps
+
+  tasks:
+    - name: Check if Docker network proxy exists
+      ansible.builtin.command:
+        cmd: docker network inspect proxy
+      register: docker_network_check
+      changed_when: false
+      failed_when: false
+
+    - name: Create Docker network proxy
+      ansible.builtin.command:
+        cmd: docker network create --driver bridge proxy
+      when: docker_network_check.rc != 0
+
+    - name: Create app directories
+      ansible.builtin.file:
+        path: "{{ apps_path }}/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - traefik
+
+    - name: Create acme.json for Traefik
+      ansible.builtin.file:
+        path: "{{ apps_path }}/traefik/acme.json"
+        state: touch
+        mode: "0600"
+
+    - name: Template Traefik config
+      ansible.builtin.template:
+        src: ../templates/traefik/traefik.yml.j2
+        dest: "{{ apps_path }}/traefik/traefik.yml"
+        mode: "0644"
+
+    - name: Template Traefik env
+      ansible.builtin.template:
+        src: ../templates/traefik/traefik.env.j2
+        dest: "{{ apps_path }}/traefik/.env"
+        mode: "0600"
+
+    - name: Copy Traefik docker-compose
+      ansible.builtin.copy:
+        src: ../templates/traefik/docker-compose.yml
+        dest: "{{ apps_path }}/traefik/docker-compose.yml"
+        mode: "0644"
+
+    - name: Deploy Traefik
+      community.docker.docker_compose_v2:
+        project_src: "{{ apps_path }}/traefik"
+        state: present

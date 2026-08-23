@@ -1,7 +1,4 @@
 - name: Configure servers
-  hosts: servers
-  become: true
-
-  tasks:
-    - name: Docker installation
-      import_tasks: docker-install.yml
+  import_playbook: playbooks/configure.yml
+- name: Deploy apps
+  import_playbook: playbooks/deploy.yml
