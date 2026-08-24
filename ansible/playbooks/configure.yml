@@ -45,7 +45,7 @@
     - name: Update apt and install Docker Engine
       apt:
         pkg:
-          - docker-ce
+          - docker-ce=5:28.5.2-1~debian.13~trixie # DO NOT KEEP THIS
           - docker-ce-cli
           - containerd.io
           - docker-buildx-plugin
@@ -57,3 +57,9 @@
       pip:
         name: docker>=7.1.0
         extra_args: --break-system-packages
+
+    - name: Set DOMAIN environment variable
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        regexp: ^DOMAIN=
+        line: DOMAIN={{ base_domain }}

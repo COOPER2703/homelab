@@ -25,6 +25,7 @@
         mode: "0755"
       loop:
         - traefik
+        - pv-maker
 
     - name: Create acme.json for Traefik
       ansible.builtin.file:
@@ -54,3 +55,16 @@
       community.docker.docker_compose_v2:
         project_src: "{{ apps_path }}/traefik"
         state: present
+
+    - name: Copy PV Maker docker-compose
+      ansible.builtin.copy:
+        src: ../templates/pv-maker/docker-compose.yml
+        dest: "{{ apps_path }}/pv-maker/docker-compose.yml"
+        mode: "0644"
+
+    - name: Deploy PV Maker
+      community.docker.docker_compose_v2:
+        project_src: "{{ apps_path }}/pv-maker"
+        state: present
+      environment:
+        DOMAIN: "{{ base_domain }}"

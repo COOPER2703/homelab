@@ -1,0 +1,25 @@
+services:
+  pv-maker:
+    image: jolcochetpro/pv-maker:latest
+    container_name: pv-maker
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      - DOMAIN=${DOMAIN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pv-maker.rule=Host(`pv-maker.${DOMAIN}`)"
+      - "traefik.http.routers.pv-maker.entrypoints=websecure"
+      - "traefik.http.routers.pv-maker.tls.certresolver=letsencrypt"
+      - "traefik.http.services.pv-maker.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
