@@ -45,7 +45,7 @@
     - name: Update apt and install Docker Engine
       apt:
         pkg:
-          - docker-ce=5:28.5.2-1~debian.13~trixie # DO NOT KEEP THIS
+          - docker-ce=5:28.5.2-1~debian.13~trixie # DO NOT KEEP 
           - docker-ce-cli
           - containerd.io
           - docker-buildx-plugin

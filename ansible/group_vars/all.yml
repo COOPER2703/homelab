@@ -1,2 +1,2 @@
 traefik_acme_email: "jolan.cochet@gmail.com"
-base_domain: "test.home"
+base_domain: "cooper-host.com"
