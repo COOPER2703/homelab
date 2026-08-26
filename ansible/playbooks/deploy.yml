@@ -4,7 +4,7 @@
 
   vars:
     apps_path: /opt/apps
-    templates_path: "{{ playbook_dir }}/../templates"
+    templates_path: "{{ [playbook_dir, '..', 'templates'] | path_join | realpath }}"
 
   tasks:
     - name: Check if Docker network proxy exists
@@ -26,6 +26,9 @@
         patterns: "*"
         recurse: false
       register: app_dirs
+      delegate_to: localhost
+      run_once: true
+      become: false
 
     - name: Deploy apps
       ansible.builtin.include_tasks: "{{ item }}/deploy.yml"

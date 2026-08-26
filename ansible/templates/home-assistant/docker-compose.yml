@@ -1,0 +1,31 @@
+services:
+  homeassistant:
+    container_name: home-assistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - /opt/apps/home-assistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - proxy
+    environment:
+      TZ: Europe/Paris
+      DOMAIN: ${DOMAIN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.home-assistant.rule=Host(`hass.${DOMAIN}`)"
+      - "traefik.http.routers.home-assistant.entrypoints=websecure"
+      - "traefik.http.routers.home-assistant.tls.certresolver=letsencrypt"
+      - "traefik.http.services.home-assistant.loadbalancer.server.port=8123"
+
+networks:
+  proxy:
+    external: true
