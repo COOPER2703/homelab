@@ -1,0 +1,18 @@
+- name: Create PV Maker directory
+  ansible.builtin.file:
+    path: "{{ apps_path }}/pv-maker"
+    state: directory
+    mode: "0755"
+
+- name: Copy PV Maker docker-compose
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../templates/pv-maker/docker-compose.yml"
+    dest: "{{ apps_path }}/pv-maker/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy PV Maker
+  community.docker.docker_compose_v2:
+    project_src: "{{ apps_path }}/pv-maker"
+    state: present
+  environment:
+    DOMAIN: "{{ base_domain }}"

@@ -1,0 +1,34 @@
+- name: Create Traefik directory
+  ansible.builtin.file:
+    path: "{{ apps_path }}/traefik"
+    state: directory
+    mode: "0755"
+
+- name: Create acme.json for Traefik
+  ansible.builtin.file:
+    path: "{{ apps_path }}/traefik/acme.json"
+    state: touch
+    mode: "0600"
+
+- name: Template Traefik config
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/traefik/traefik.yml.j2"
+    dest: "{{ apps_path }}/traefik/traefik.yml"
+    mode: "0644"
+
+- name: Template Traefik env
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/traefik/traefik.env.j2"
+    dest: "{{ apps_path }}/traefik/.env"
+    mode: "0600"
+
+- name: Copy Traefik docker-compose
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../templates/traefik/docker-compose.yml"
+    dest: "{{ apps_path }}/traefik/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy Traefik
+  community.docker.docker_compose_v2:
+    project_src: "{{ apps_path }}/traefik"
+    state: present
