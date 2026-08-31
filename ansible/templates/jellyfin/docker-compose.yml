@@ -4,7 +4,7 @@ services:
     container_name: jellyfin
     restart: unless-stopped
     environment:
-      - DOMAIN=${DOMAIN}
+      - DOMAIN: ${DOMAIN}
     networks:
       - proxy
     volumes:
