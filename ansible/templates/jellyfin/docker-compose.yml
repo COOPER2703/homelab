@@ -4,13 +4,15 @@ services:
     container_name: jellyfin
     restart: unless-stopped
     environment:
-      - DOMAIN: ${DOMAIN}
+      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/jellyfin/config:/config
       - /opt/apps/jellyfin/cache:/cache
-      - /storage/jellyfin/media:/media:ro
+      - /storage/media/movies:/media/movies:ro
+      - /storage/media/tv:/media/tv:ro
+      - /storage/media/books:/media/books:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"

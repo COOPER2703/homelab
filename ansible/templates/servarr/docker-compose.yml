@@ -1,0 +1,145 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    env_file:
+      - gluetun.env
+    ports:
+      - 8080:8080
+      - 8081:8081
+    networks:
+      - proxy
+    volumes:
+      - /opt/apps/servarr/gluetun/config:/gluetun
+
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - WEBUI_PORT=8081
+    volumes:
+      - /opt/apps/servarr/qbittorrent/config:/config
+      - /storage/media/downloads:/downloads
+    depends_on:
+      - gluetun
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    networks:
+      - proxy
+    volumes:
+      - /opt/apps/servarr/prowlarr/config:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN}`)"
+      - "traefik.http.routers.prowlarr.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    networks:
+      - proxy
+    volumes:
+      - /opt/apps/servarr/sonarr/config:/config
+      - /storage/media/tv:/tv
+      - /storage/media/downloads:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN}`)"
+      - "traefik.http.routers.sonarr.entrypoints=websecure"
+      - "traefik.http.routers.sonarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+    depends_on:
+      - prowlarr
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    networks:
+      - proxy
+    volumes:
+      - /opt/apps/servarr/radarr/config:/config
+      - /storage/media/movies:/movies
+      - /storage/media/downloads:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN}`)"
+      - "traefik.http.routers.radarr.entrypoints=websecure"
+      - "traefik.http.routers.radarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+    depends_on:
+      - prowlarr
+
+  readarr:
+    image: linuxserver/readarr:latest
+    container_name: readarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    networks:
+      - proxy
+    volumes:
+      - /opt/apps/servarr/readarr/config:/config
+      - /storage/media/books:/books
+      - /storage/media/downloads:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.readarr.rule=Host(`readarr.${DOMAIN}`)"
+      - "traefik.http.routers.readarr.entrypoints=websecure"
+      - "traefik.http.routers.readarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.readarr.loadbalancer.server.port=8787"
+    depends_on:
+      - prowlarr
+
+  autobrr:
+    image: ghcr.io/autobrr/autobrr:latest
+    container_name: autobrr
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Paris
+    networks:
+      - proxy
+    volumes:
+      - /opt/apps/servarr/autobrr/config:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.autobrr.rule=Host(`autobrr.${DOMAIN}`)"
+      - "traefik.http.routers.autobrr.entrypoints=websecure"
+      - "traefik.http.routers.autobrr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.autobrr.loadbalancer.server.port=7474"
+    depends_on:
+      - qbittorrent
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,45 @@
+- name: Create Servarr directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ apps_path }}/servarr"
+    - "{{ apps_path }}/servarr/gluetun"
+    - "{{ apps_path }}/servarr/gluetun/config"
+    - "{{ apps_path }}/servarr/qbittorrent"
+    - "{{ apps_path }}/servarr/qbittorrent/config"
+    - "{{ apps_path }}/servarr/prowlarr"
+    - "{{ apps_path }}/servarr/prowlarr/config"
+    - "{{ apps_path }}/servarr/sonarr"
+    - "{{ apps_path }}/servarr/sonarr/config"
+    - "{{ apps_path }}/servarr/radarr"
+    - "{{ apps_path }}/servarr/radarr/config"
+    - "{{ apps_path }}/servarr/readarr"
+    - "{{ apps_path }}/servarr/readarr/config"
+    - "{{ apps_path }}/servarr/autobrr"
+    - "{{ apps_path }}/servarr/autobrr/config"
+    - /storage/media
+    - /storage/media/downloads
+    - /storage/media/movies
+    - /storage/media/tv
+    - /storage/media/books
+
+- name: Template Gluetun env
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/servarr/gluetun.env.j2"
+    dest: "{{ apps_path }}/servarr/gluetun.env"
+    mode: "0600"
+
+- name: Copy Servarr docker-compose
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../templates/servarr/docker-compose.yml"
+    dest: "{{ apps_path }}/servarr/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy Servarr stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ apps_path }}/servarr"
+    state: present
+  environment:
+    DOMAIN: "{{ base_domain }}"
