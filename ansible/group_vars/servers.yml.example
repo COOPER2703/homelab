@@ -1,3 +1,5 @@
 # Chiffrer ce fichier avec : ansible-vault encrypt ansible/group_vars/vault.yml
 vault_cloudflare_api_token : "API TOKEN"
 vault_cloudflare_email: "EMAIL"
+vault_mullvad_private_key: ""
+vault_mullvad_address:

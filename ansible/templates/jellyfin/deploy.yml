@@ -7,9 +7,10 @@
     - "{{ apps_path }}/jellyfin"
     - "{{ apps_path }}/jellyfin/config"
     - "{{ apps_path }}/jellyfin/cache"
-    - /storage/media/movies
-    - /storage/media/tv
-    - /storage/media/books
+    - /mnt/storage/media/movies
+    - /mnt/storage/media/tv
+    - /mnt/storage/media/books
+  become: false
 
 - name: Copy Jellyfin docker-compose
   ansible.builtin.copy:

@@ -10,9 +10,9 @@ services:
     volumes:
       - /opt/apps/jellyfin/config:/config
       - /opt/apps/jellyfin/cache:/cache
-      - /storage/media/movies:/media/movies:ro
-      - /storage/media/tv:/media/tv:ro
-      - /storage/media/books:/media/books:ro
+      - /mnt/storage/media/movies:/media/movies:ro
+      - /mnt/storage/media/tv:/media/tv:ro
+      - /mnt/storage/media/books:/media/books:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"

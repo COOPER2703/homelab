@@ -1,39 +1,29 @@
 services:
-  gluetun:
-    image: qmcgaw/gluetun:latest
-    container_name: gluetun
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    env_file:
-      - gluetun.env
-    ports:
-      - 8080:8080
-      - 8081:8081
-    networks:
-      - proxy
-    volumes:
-      - /opt/apps/servarr/gluetun/config:/gluetun
-
   qbittorrent:
     image: linuxserver/qbittorrent:latest
     container_name: qbittorrent
     restart: unless-stopped
-    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
-      - WEBUI_PORT=8081
+      - DOMAIN=${DOMAIN}
+    networks:
+      - proxy
     volumes:
       - /opt/apps/servarr/qbittorrent/config:/config
-      - /storage/media/downloads:/downloads
-    depends_on:
-      - gluetun
+      - /mnt/storage/media/downloads:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
 
   prowlarr:
+    dns:
+      - 1.1.1.1
+      - 9.9.9.9
     image: linuxserver/prowlarr:latest
     container_name: prowlarr
     restart: unless-stopped
@@ -41,6 +31,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
+      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
@@ -60,12 +51,13 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
+      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/sonarr/config:/config
-      - /storage/media/tv:/tv
-      - /storage/media/downloads:/downloads
+      - /mnt/storage/media/tv:/tv
+      - /mnt/storage/media/downloads:/downloads
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN}`)"
@@ -79,16 +71,18 @@ services:
     image: linuxserver/radarr:latest
     container_name: radarr
     restart: unless-stopped
+    user: 1000:1000
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
+      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/radarr/config:/config
-      - /storage/media/movies:/movies
-      - /storage/media/downloads:/downloads
+      - /mnt/storage/media/movies:/movies
+      - /mnt/storage/media/downloads:/downloads
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN}`)"
@@ -98,28 +92,28 @@ services:
     depends_on:
       - prowlarr
 
-  readarr:
-    image: linuxserver/readarr:latest
-    container_name: readarr
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Paris
-    networks:
-      - proxy
-    volumes:
-      - /opt/apps/servarr/readarr/config:/config
-      - /storage/media/books:/books
-      - /storage/media/downloads:/downloads
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.readarr.rule=Host(`readarr.${DOMAIN}`)"
-      - "traefik.http.routers.readarr.entrypoints=websecure"
-      - "traefik.http.routers.readarr.tls.certresolver=letsencrypt"
-      - "traefik.http.services.readarr.loadbalancer.server.port=8787"
-    depends_on:
-      - prowlarr
+  # readarr:
+  #   image: linuxserver/readarr:develop
+  #   container_name: readarr
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Paris
+  #   networks:
+  #     - proxy
+  #   volumes:
+  #     - /opt/apps/servarr/readarr/config:/config
+  #     - /mnt/storage/media/books:/books
+  #     - /mnt/storage/media/downloads:/downloads
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.readarr.rule=Host(`readarr.${DOMAIN}`)"
+  #     - "traefik.http.routers.readarr.entrypoints=websecure"
+  #     - "traefik.http.routers.readarr.tls.certresolver=letsencrypt"
+  #     - "traefik.http.services.readarr.loadbalancer.server.port=8787"
+  #   depends_on:
+  #     - prowlarr
 
   autobrr:
     image: ghcr.io/autobrr/autobrr:latest
@@ -127,6 +121,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Europe/Paris
+      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:

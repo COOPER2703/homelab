@@ -1,4 +1,7 @@
 - name: Configure servers
+  vars:
+    ansible_become_pass: "{{ vault_production_become_pass }}"
+
   import_playbook: playbooks/configure.yml
 - name: Deploy apps
   import_playbook: playbooks/deploy.yml
