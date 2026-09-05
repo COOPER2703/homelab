@@ -1,0 +1,28 @@
+- name: Create Home Assistant directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ apps_path }}/homeassistant"
+    - "{{ apps_path }}/homeassistant/config"
+  become: false
+
+- name: Copy Home Assistant docker-compose
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/homeassistant/docker-compose.yml.j2"
+    dest: "{{ apps_path }}/homeassistant/docker-compose.yml"
+    mode: "0644"
+
+- name: Copy Home Assistant configuration
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../templates/homeassistant/configuration.yaml"
+    dest: "{{ apps_path }}/homeassistant/config/configuration.yaml"
+    mode: "0644"
+
+- name: Deploy Home Assistant
+  community.docker.docker_compose_v2:
+    project_src: "{{ apps_path }}/homeassistant"
+    state: present
+  environment:
+    DOMAIN: "{{ base_domain }}"
