@@ -7,15 +7,20 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
-      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/qbittorrent/config:/config
       - /mnt/storage/media/downloads:/downloads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.{{ base_domain }}`)"
       - "traefik.http.routers.qbittorrent.entrypoints=websecure"
       - "traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt"
       - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
@@ -31,14 +36,19 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
-      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/prowlarr/config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN}`)"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.{{ base_domain }}`)"
       - "traefik.http.routers.prowlarr.entrypoints=websecure"
       - "traefik.http.routers.prowlarr.tls.certresolver=letsencrypt"
       - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
@@ -51,16 +61,21 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
-      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/sonarr/config:/config
       - /mnt/storage/media/tv:/tv
       - /mnt/storage/media/downloads:/downloads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8989/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN}`)"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ base_domain }}`)"
       - "traefik.http.routers.sonarr.entrypoints=websecure"
       - "traefik.http.routers.sonarr.tls.certresolver=letsencrypt"
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
@@ -76,16 +91,21 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
-      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/radarr/config:/config
       - /mnt/storage/media/movies:/movies
       - /mnt/storage/media/downloads:/downloads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7878/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN}`)"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.{{ base_domain }}`)"
       - "traefik.http.routers.radarr.entrypoints=websecure"
       - "traefik.http.routers.radarr.tls.certresolver=letsencrypt"
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
@@ -108,7 +128,7 @@ services:
   #     - /mnt/storage/media/downloads:/downloads
   #   labels:
   #     - "traefik.enable=true"
-  #     - "traefik.http.routers.readarr.rule=Host(`readarr.${DOMAIN}`)"
+  #     - "traefik.http.routers.readarr.rule=Host(`readarr.{{ base_domain }}`)"
   #     - "traefik.http.routers.readarr.entrypoints=websecure"
   #     - "traefik.http.routers.readarr.tls.certresolver=letsencrypt"
   #     - "traefik.http.services.readarr.loadbalancer.server.port=8787"
@@ -121,14 +141,19 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Europe/Paris
-      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
       - /opt/apps/servarr/autobrr/config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7474/api/healthz/liveness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.autobrr.rule=Host(`autobrr.${DOMAIN}`)"
+      - "traefik.http.routers.autobrr.rule=Host(`autobrr.{{ base_domain }}`)"
       - "traefik.http.routers.autobrr.entrypoints=websecure"
       - "traefik.http.routers.autobrr.tls.certresolver=letsencrypt"
       - "traefik.http.services.autobrr.loadbalancer.server.port=7474"

@@ -13,8 +13,8 @@
   become: false
 
 - name: Copy Jellyfin docker-compose
-  ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../templates/jellyfin/docker-compose.yml"
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/jellyfin/docker-compose.yml.j2"
     dest: "{{ apps_path }}/jellyfin/docker-compose.yml"
     mode: "0644"
 

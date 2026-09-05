@@ -57,9 +57,3 @@
       pip:
         name: docker>=7.1.0
         extra_args: --break-system-packages
-
-    - name: Set DOMAIN environment variable in /etc/environment
-      ansible.builtin.lineinfile:
-        path: /etc/environment
-        regexp: ^DOMAIN=
-        line: DOMAIN={{ base_domain }}

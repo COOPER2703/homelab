@@ -3,8 +3,6 @@ services:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
-    environment:
-      - DOMAIN=${DOMAIN}
     networks:
       - proxy
     volumes:
@@ -13,9 +11,15 @@ services:
       - /mnt/storage/media/movies:/media/movies:ro
       - /mnt/storage/media/tv:/media/tv:ro
       - /mnt/storage/media/books:/media/books:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.{{ base_domain }}`)"
       - "traefik.http.routers.jellyfin.entrypoints=websecure"
       - "traefik.http.routers.jellyfin.tls.certresolver=letsencrypt"
       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
