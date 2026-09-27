@@ -9,6 +9,8 @@
     - "{{ apps_path }}/servarr/qbittorrent/config"
     - "{{ apps_path }}/servarr/prowlarr"
     - "{{ apps_path }}/servarr/prowlarr/config"
+    - "{{ apps_path }}/servarr/flaresolverr"
+    - "{{ apps_path }}/servarr/flaresolverr/config"
     - "{{ apps_path }}/servarr/sonarr"
     - "{{ apps_path }}/servarr/sonarr/config"
     - "{{ apps_path }}/servarr/radarr"
