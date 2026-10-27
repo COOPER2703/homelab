@@ -7,7 +7,7 @@ Hub de synchronisation du coffre Obsidian, exposé sur `https://obsidian.cooper-
 | Champ | Valeur |
 |---|---|
 | URI | `https://obsidian.cooper-host.com` |
-| Base de données | `obsidiannotes` |
+| Base de données | `obsidiandb` |
 | Utilisateur | `obsidian` (ou `vault_obsidian_admin_user`) |
 | Mot de passe | `vault_obsidian_admin_password`, dans l'Ansible Vault |
 
@@ -18,7 +18,7 @@ Le mot de passe n'est jamais versionné : il vit dans `ansible/group_vars/server
 1. Installer le plugin communautaire **Self-hosted LiveSync** dans Obsidian.
 2. Renseigner l'URI, l'utilisateur, le mot de passe et le nom de base ci-dessus, puis tester la connexion.
 3. Choisir une **passphrase de chiffrement de bout en bout**. Elle est identique sur tous les appareils, n'est jamais stockée sur le serveur et n'existe pas dans ce repo.
-4. Au premier appareil, créer la base `obsidiannotes` depuis le plugin ; les appareils suivants s'y connectent.
+4. Au premier appareil, créer la base `obsidiandb` depuis le plugin ; les appareils suivants s'y connectent.
 
 La base n'est pas créée par Ansible : le plugin s'en charge, ce qui évite de dépendre de l'URL publique pendant le premier déploiement.
 
