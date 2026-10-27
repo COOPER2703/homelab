@@ -1,6 +1,7 @@
 services:
   traefik:
-    image: traefik:v3.4
+    # >= 3.6.1 requis pour négocier l'API Docker ; Engine 29 refuse l'API 1.24.
+    image: traefik:v3.7.16
     container_name: traefik
     restart: always
     networks:
