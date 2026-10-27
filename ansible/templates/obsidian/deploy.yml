@@ -1,0 +1,49 @@
+- name: Create Obsidian directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    # Le conteneur tourne en 1000:1000 : il doit pouvoir écrire data/ et etc/.
+    owner: "1000"
+    group: "1000"
+    mode: "0755"
+  loop:
+    - "{{ apps_path }}/obsidian"
+    - "{{ apps_path }}/obsidian/data"
+    - "{{ apps_path }}/obsidian/etc"
+
+- name: Template Obsidian env
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/obsidian/obsidian.env.j2"
+    dest: "{{ apps_path }}/obsidian/.env"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+
+- name: Copy Obsidian CouchDB config
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../templates/obsidian/10-livesync.ini"
+    dest: "{{ apps_path }}/obsidian/etc/10-livesync.ini"
+    owner: "1000"
+    group: "1000"
+    mode: "0644"
+  register: obsidian_config
+
+- name: Template Obsidian docker-compose
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../templates/obsidian/docker-compose.yml.j2"
+    dest: "{{ apps_path }}/obsidian/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy Obsidian
+  community.docker.docker_compose_v2:
+    project_src: "{{ apps_path }}/obsidian"
+    state: present
+
+# Un fichier monté ne change pas la définition du conteneur : compose ne le
+# recrée pas. On redémarre explicitement pour appliquer une modification de
+# 10-livesync.ini.
+- name: Restart Obsidian after configuration change
+  community.docker.docker_compose_v2:
+    project_src: "{{ apps_path }}/obsidian"
+    state: restarted
+  when: obsidian_config.changed

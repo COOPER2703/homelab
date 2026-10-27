@@ -1,0 +1,29 @@
+services:
+  obsidian:
+    image: couchdb:3.5.3
+    container_name: obsidian
+    restart: unless-stopped
+    user: "1000:1000"
+    networks:
+      - proxy
+    env_file:
+      - .env
+    volumes:
+      - /opt/apps/obsidian/data:/opt/couchdb/data
+      - /opt/apps/obsidian/etc:/opt/couchdb/etc/local.d
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -u \"$$COUCHDB_USER:$$COUCHDB_PASSWORD\" http://localhost:5984/_up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.obsidian.rule=Host(`obsidian.{{ base_domain }}`)"
+      - "traefik.http.routers.obsidian.entrypoints=websecure"
+      - "traefik.http.routers.obsidian.tls.certresolver=letsencrypt"
+      - "traefik.http.services.obsidian.loadbalancer.server.port=5984"
+
+networks:
+  proxy:
+    external: true

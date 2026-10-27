@@ -1,0 +1,3 @@
+# Exposer CouchDB LiveSync publiquement avec l'authentification CouchDB seule
+
+Le hub LiveSync doit être joignable en HTTPS par les clients Obsidian, y compris mobiles, sans VPN. Nous l'exposons donc sur `obsidian.cooper-host.com` derrière Traefik, sans SSO ni basic auth, avec `require_valid_user` et un compte administrateur dédié ; le chiffrement de bout en bout, activé côté client, protège le contenu des notes. Les alternatives — basic auth Traefik (fragile avec les PUT/DELETE/OPTIONS de LiveSync) et allowlist IP (incompatible avec la synchronisation mobile hors VPN) — ont été écartées. Conséquence assumée : le hub n'a pas de sauvegarde serveur, chaque appareil détenant une réplique du coffre.
